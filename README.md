@@ -166,3 +166,84 @@ STATIC_URL = 'static/'
 LOGIN_REDIRECT_URL = '/'
 LOGOUT_REDIRECT_URL = '/home'
 ```
+
+## Se crea un forms.py en autentificacion_app 
+```bash
+from django import forms
+from django.contrib.auth.models import User
+from django.contrib.auth.forms import UserCreationForm
+
+class UserRegistrationForm(UserCreationForm):
+   email = forms.EmailField(required=True, widget=forms.EmailInput(attrs={'class': 'form-control form-control-sm'}))
+
+   class Meta:
+       model = User
+       fields = ['username', 'email', 'password1', 'password2']
+
+   def init(self, args, **kwargs):
+       super(UserRegistrationForm, self).init(args, **kwargs)
+       for fieldname in ['username', 'password1', 'password2']:
+           self.fields[fieldname].widget.attrs['class'] = 'form-control form-control-sm'
+```
+
+## Creamos los templates en autentificacion_app/register.html
+
+## register.html
+```html
+
+
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Register</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+</head>
+
+<body class="bg-light">
+    <div class="container mt-5">
+        <h1 class="text-center mb-4">Register</h1>
+        <div class="card p-4 shadow-sm">
+            <form method="post">
+                {% csrf_token %}
+                {{ form.as_p }}
+                <button type="submit" class="btn btn-primary w-100">Register</button>
+            </form>
+        </div>
+        <p class="text-center mt-3">Already have an account? <a href="{% url 'login' %}">Login here</a></p>
+    </div>
+</body>
+
+</html>
+```
+
+## Configuracion de vistas agregando register
+```bash
+from django.shortcuts import render
+from django.contrib.auth.decorators import login_required
+from .forms import UserRegistrationForm
+# Create your views here.
+
+def index(request):
+    return render(request, 'autentificacion_app/index.html')
+
+def home(request):
+    return render(request, 'autentificacion_app/home.html')
+
+@login_required
+def login(request):
+    return render(request, 'autentificacion_app/login.html')
+
+def register(request):
+    if request.method == 'POST':
+        form = UserRegistrationForm(request.POST)
+        if form.is_valid():
+            form.save()
+            return redirect('login')  # Redirigir al login después del registro
+    else:
+        form = UserRegistrationForm()
+    return render(request, 'autentificacion_app/register.html', {'form': form})
+
+```
