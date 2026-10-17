@@ -131,7 +131,7 @@ def home(request):
     return render (request, 'autentificacion_app/home.html')
 
 @login_required
-def login(reuqest):
+def login(request):
     return render (request, 'autentificacion_app/login.html')
 ```
 
@@ -153,7 +153,7 @@ from django.contrib.auth import views as auth_views
 from .import views
 
 urlpatterns = [
-    path('login/',auth_views.LoginView.as_view(templates_name='autentificacion_app/login.html'),name='login'),
+    path('login/',auth_views.LoginView.as_view(template_name='autentificacion_app/login.html'),name='login'),
     path('logout/',auth_views.LogoutView.as_view(), name='logout'),
     path('',views.index, name='index'),
     path('home/',views.home, name='home'),
